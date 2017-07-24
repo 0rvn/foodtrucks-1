@@ -26,3 +26,4 @@ function getFlashbag() {
     unset($_SESSION['flashbag']);
   }
 }
+

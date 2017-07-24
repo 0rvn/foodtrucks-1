@@ -18,12 +18,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
 // Cas où l'utilisateur arrive sur la page sans envoyer le formulaire (méthode GET)
 else {
-
+    // Définition du token
+    $_SESSION['token'] = getToken();
 }
 ?>
 
 <div class="page-header">
-    <h2>Inscription</h2>
+    <h2 class="text-center">Inscription</h2>
 </div>
 
 <div class="row">
@@ -110,7 +111,7 @@ else {
         </form>
 
         <p class="text-center">
-            <a href="index.php?page=login">J'ai déjà compte</a>
+            <a href="index.php?page=login">J'ai déjà un compte</a>
         </p>
 
 
