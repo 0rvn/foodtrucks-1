@@ -12,11 +12,11 @@ include_once '../private/app/autoload.php';
 // --------------------
 
 // Autoload des fonctions / controllers
-autoload("../private/functions/", "/^fnc-.*\.php$/i");
-// autoload(FUNCTIONS_DIRECTORY, FUNCTIONS_FILES);
+// autoload("../private/functions/", "/^fnc-.*\.php$/i");
+autoload(FUNCTIONS_DIRECTORY, FUNCTIONS_FILES);
 
 // Autoload des models
-//autoload(MODELS_DIRECTORY, MODELS_FILES);
+autoload(MODELS_DIRECTORY, MODELS_FILES);
 
 
 // --------------------

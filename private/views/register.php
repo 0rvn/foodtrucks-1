@@ -1,6 +1,6 @@
 <?php
 
-// Definition des variables par défaut
+// Définition des variables par défaut
 $login       = null;
 $password    = null;
 $firstname   = null;
@@ -14,17 +14,188 @@ $birth_year  = null;
 // Contrôle du formulaire
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
+    $save = true;
+
+    // Recupérer les données de $_POST
+    $token       = isset($_POST['token']) ? $_POST['token'] : null;
+    $login       = isset($_POST['login']) ? $_POST['login'] : null;
+    $password    = isset( $_POST['password']) ? $_POST['password'] : null;
+    $firstname   = isset($_POST['firstname']) ? $_POST['firstname'] : null;
+    $lastname    = isset( $_POST['lastname']) ? $_POST['lastname'] : null;
+    $gender      = isset($_POST['gender']) ? $_POST['gender'] : null;
+    $birth_day   = isset(  $_POST['birth']['day']) ? $_POST['birth']['day'] : null;
+    $birth_month = isset($_POST['birth']['month']) ? $_POST['birth']['month'] : null;
+    $birth_year  = isset( $_POST['birth']['year']) ?  $_POST['birth']['year'] : null;
+
+    // Contrôler l'intégrité du token
+    if ($_SESSION['token'] !== $token ) {
+        $save = false;
+        setFlashbag("danger", "Le token est invalide.");
+    }
+
+
+    // - Contrôle de l'adresse email
+    // --
+    // -> ne doit pas être vide
+    // -> doit avoir la syntaxe d'une adresse email valide
+    if (empty($login)) {
+        $save = false;
+        setFlashbag("danger", "Veuillez saisir une adresse mail valide.");
+    } elseif (!filter_var($login, FILTER_VALIDATE_EMAIL)) {
+        $save = false;
+        setFlashbag("danger", "Veuillez saisir une adresse mail valide.");
+    }
+
+    // - Contrôle du mot de passe
+    // --
+    // -> doit contenir au moins 8 caractères
+    if (strlen($password) < 8 || strlen($password) > 16) {
+        $save = false;
+        setFlashbag("danger", "Le mot de passe doit avoir 8 caractères minimum et 16 caractères maximum."); 
+    }
+    // -> doit avoir au moins un caractère de type numérique
+     else if (!preg_match("/[0-9]/", $password)) {
+        $save = false;
+        setFlashbag("danger", "Le mot de passe doit contenir au moins un caractère numérique."); 
+    }
+    // PEUT AUSSI ETRE ECRIT AINSI :
+    // elseif (strlen(filter_var($password, FILTER_SANITIZE_NUMBER_INT)) <= 0) {
+    //      $send = false;
+    //      setFlashbag("danger", "Le mot de passe doit contenir au moins un caractère numérique.")
+    // }
+
+    // -> doit avoir au moins un caractère en majuscule
+    else if (!preg_match("/[A-Z]/", $password)) {
+        $save = false;
+        setFlashbag("danger", "Le mot de passe doit contenir au moins un caractère en majuscule."); 
+    }
+    // -> doit avoir au moins un caractère spécial (#@!=+-_)
+    elseif (!preg_match("/[#|@|!|=|\+|-|_]/", $password)) {
+        $save = false;
+        setFlashbag("danger", "Le mot de passe doit contenir au moins un caractère spécial (#@!=+-_)."); 
+    }
+    // On crypte le mot de passe
+    else {
+        $password = password_hash($password, PASSWORD_DEFAULT);
+    }
+
+    // - Contrôle du prénom
+    // --
+    // -> doit être une chaine alphabetique
+    // -> peut contenir un tiret
+    // -> ne doit pas posséder de caractère numérique
+    if (!preg_match("/^[a-z][a-z-]*[a-z]$/i", $firstname)) {
+        $save = false;
+        setFlashbag("danger", "Vérifiez la syntaxe du prénom.");
+    }
+
+
+    // - Contrôle du nom de famille
+    // --
+    // -> doit être une chaîne alphabétique
+    // -> peut contenir un tiret
+    // -> ne doit pas posséder de caractère numérique
+    if (!preg_match("/^[a-z][a-z-]*[a-z]$/i", $lastname)) {
+        $save = false;
+        setFlashbag("danger", "Vérifiez la syntaxe du nom.");
+    }
+
+    // - Contrôle de la date de naissance
+    // --
+    // -> doit être une date valide
+    // -> doit être supérieur à 13 ans au moment de l'inscription
+    function age($birth_month, $birth_day, $birth_year) {
+        // Evaluation de l'âge (à un an par excès)
+        $age = date('Y', time()) - $birth_year;
+        if ($birth_month > date('m', time()) || ($birth_month == date('m', time())) && $birth_day >= date('d',time())) {
+            return $age;
+        }
+
+    }
+
+    if (!checkdate($birth_month, $birth_day, $birth_year)) {
+        $save = false;
+        setFlashbag("danger", "Veuillez entrer une date valide.");
+    }
+    elseif ( age($birth_month, $birth_day, $birth_year) < 13 ) {
+        $save = false;
+        setFlashbag("danger", "Va moucher ton nez, tu n'as pas l'âge pour entrer.");
+    }
+    else {
+        $birthday = $birth_year."-".$birth_month."-".$birth_day;
+    }
+
+
+    // - Contrôle le genre
+    // --
+    // -> Le champ doit posséder une valeur (M ou F)
+    if(!isset($gender)) {
+        $save = false;
+        setFlashbag("danger", "Veuillez sélectionner un genre.");
+    }
+
+    // - Contrôle des conditions d'utilisation du service
+    // --
+    // -> La checkbox doit être cochée.
+    if (!isset($_POST['acceptTerms'])) {
+        $save = false;
+        setFlashbag("danger", "Veuillez accepter les conditions d'utilisation du service.");
+    }
+
+    // - Controle l'existance de l'utilisateur dans la BDD
+    // -> L'adresse email ne doit pas etre présente dans la BDD (table users)
+    if ($save) {
+        if (userExists($login)) {
+            $save = false;
+            setFlashbag("danger", "Un utilisateur est déjà enregistré avec l'adresse email $login.");
+        }
+    }
+
+    // On enregistre l'utilisateur dans la BDD
+    if ($save) {
+
+        // Enregistre l'utilisateur
+        $idUser = addUser(array(
+            "firstname" => $firstname,
+            "lastname"  => $lastname,
+            "login"     => $login,
+            "password"  => $password,
+            "gender"    => $gender,
+            "birthday"  => $birthday
+        ));
+
+        // Identification de l'utilisateur
+        $_SESSION['user'] = [
+            "id"        => $idUser,
+            "firstname" => $firstname,
+            "lastname"  => $lastname,
+            "login"     => $login,
+            "roles"     => $default_users_roles
+        ];
+
+        // Flashbag Success
+        setFlashbag("success","Bienvenue $firstname!");
+
+        // Destruction du token
+        unset($_SESSION['token']);
+
+        // Redirection de l'utilisateur
+        header("location: index.php?page=profile");
+        // exit;
+    }
+
+
 }
 
 // Cas où l'utilisateur arrive sur la page sans envoyer le formulaire (méthode GET)
 else {
-    // Définition du token
+    // Definition du token
     $_SESSION['token'] = getToken();
 }
 ?>
 
 <div class="page-header">
-    <h2 class="text-center">Inscription</h2>
+    <h2>Inscription</h2>
 </div>
 
 <div class="row">
@@ -34,7 +205,7 @@ else {
 
         <form method="post">
 
-            <input type="text" name="token" value="<?php echo $_SESSION['token']; ?>">
+            <input type="hidden" name="token" value="<?php echo $_SESSION['token']; ?>">
 
             <div class="form-group">
                 <label for="login">Identifiant (adresse email)</label>
@@ -111,9 +282,10 @@ else {
         </form>
 
         <p class="text-center">
-            <a href="index.php?page=login">J'ai déjà un compte</a>
+            <a href="index.php?page=login">J'ai déjà compte</a>
         </p>
 
 
     </div>
 </div>
+

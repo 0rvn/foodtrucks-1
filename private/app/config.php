@@ -38,6 +38,11 @@ define("FUNCTIONS_FILES", "/^fnc-.*\.php$/i");
 // Filter for models/autoload instruction
 define("MODELS_FILES", "/^mdl-.*\.php$/i");
 
+// -- Users Roles
+define("ROLES_GLUE", ",");
+
+define("ROLE_USER", "USER");
+define("ROLE_ADMIN", "ADMIN");
 
 
 // --------------------
@@ -45,3 +50,5 @@ define("MODELS_FILES", "/^mdl-.*\.php$/i");
 // --------------------
 
 $default_page = "home";
+$default_lang = "fr";
+$default_users_roles = [ROLE_USER];
