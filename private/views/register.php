@@ -28,7 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $birth_year  = isset( $_POST['birth']['year']) ?  $_POST['birth']['year'] : null;
 
     // Contrôler l'intégrité du token
-    if ($_SESSION['token'] !== $token ) {
+    if (!isset($_SESSION['token']) || empty($_SESSION['token']) || $_SESSION['token'] !== $token ) {
         $save = false;
         setFlashbag("danger", "Le token est invalide.");
     }
@@ -37,10 +37,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // - Contrôle de l'adresse email
     // --
     // -> ne doit pas être vide
-    // -> doit avoir la syntaxe d'une adresse email valide
     if (empty($login)) {
         $save = false;
         setFlashbag("danger", "Veuillez saisir une adresse mail valide.");
+    // -> doit avoir la syntaxe d'une adresse email valide
     } elseif (!filter_var($login, FILTER_VALIDATE_EMAIL)) {
         $save = false;
         setFlashbag("danger", "Veuillez saisir une adresse mail valide.");
@@ -181,7 +181,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         // Redirection de l'utilisateur
         header("location: index.php?page=profile");
-        // exit;
+        exit;
     }
 
 

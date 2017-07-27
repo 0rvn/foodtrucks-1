@@ -94,3 +94,13 @@ if (
     header("location: index.php?page=login");
     exit;
 }
+
+// --------------------
+// LOGOUT
+// --------------------
+
+if ($page == "logout") {
+    session_destroy();
+    header('location: index.php'); // on ne peut pas mettre d'espace entre le paramètre location et les :
+    exit;
+}
