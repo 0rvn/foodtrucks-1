@@ -70,7 +70,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         setFlashbag("danger", "Le mot de passe doit contenir au moins un caractère en majuscule."); 
     }
     // -> doit avoir au moins un caractère spécial (#@!=+-_)
-    elseif (!preg_match("/[#|@|!|=|\+|-|_]/", $password)) {
+    else if (!preg_match("/[#|@|!|=|\+|-|_]/", $password)) {
         $save = false;
         setFlashbag("danger", "Le mot de passe doit contenir au moins un caractère spécial (#@!=+-_)."); 
     }
@@ -142,7 +142,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         setFlashbag("danger", "Veuillez accepter les conditions d'utilisation du service.");
     }
 
-    // - Controle l'existance de l'utilisateur dans la BDD
+    // - Controle l'existence de l'utilisateur dans la BDD
     // -> L'adresse email ne doit pas etre présente dans la BDD (table users)
     if ($save) {
         if (userExists($login)) {

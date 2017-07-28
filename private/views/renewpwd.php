@@ -15,7 +15,7 @@
         <div class="form-group">
             <label for="pwd_old">Mot de passe actuel</label>
             <div class="input-group">
-                <input type="password" class="form-control" id="pwd_old">
+                <input type="password" class="form-control" id="pwd_old" name="pwd_old">
                 <span class="input-group-addon" data-toggle-view="pwd_old"><i class="glyphicon glyphicon-eye-open"></i></span>
             </div>
         </div>
@@ -23,7 +23,7 @@
         <div class="form-group">
             <label for="pwd_new">Nouveau mot de passe</label>
             <div class="input-group">
-                <input type="password" class="form-control" id="pwd_new">
+                <input type="password" class="form-control" id="pwd_new" name="pwd_new">
                 <span class="input-group-addon" data-toggle-view="pwd_new"><i class="glyphicon glyphicon-eye-open"></i></span>
             </div>
         </div>
@@ -31,12 +31,12 @@
         <div class="form-group">
             <label for="pwd_repeat">Répéter le nouveau mot de passe</label>
             <div class="input-group">
-                <input type="password" class="form-control" id="pwd_repeat">
+                <input type="password" class="form-control" id="pwd_repeat" name="pwd_repeat">
                 <span class="input-group-addon" data-toggle-view="pwd_repeat"><i class="glyphicon glyphicon-eye-open"></i></span>
             </div>
         </div>
 
-        <button type="button" name="button">Modifier le mot de passe</button>
+        <button type="button" id="btn-send">Modifier le mot de passe</button>
     </form>
 
   </div>
